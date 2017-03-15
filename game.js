@@ -9,10 +9,8 @@ const PADDLE_SIZE_Y = 40;
 const PADDLE_THICKNESS = 10;
 const PADDLE_HEIGHT = 100;
 
-const BALL_SIZE_X = 50;
-const BALL_SIZE_Y = 50;
 const BALL_COLOR = 'white';
-const BALL_DIMENSION = 6;
+const BALL_SIZE = 6;
 const BALL_VELOCITY_X = 4;
 const BALL_VELOCITY_Y = 4;
 
@@ -20,50 +18,44 @@ const randSign = () => (Math.random() > 0.5) ? 1 : -1;
 
 const reset = (canvas, game) => {
   // center the ball
-  game.ball.x = canvas.width / 2;
-  game.ball.y = canvas.height / 2;
-  game.ball.velocity.x = -velocity.x;
-  game.ball.velocity.y = 3;
+  game.ball.x = canvas.width / 2 + Math.floor(Math.random() * 5);
+  game.ball.y = canvas.height / 2 + Math.floor(Math.random() * 5);
+  game.ball.velocity.x = (1 + Math.floor(Math.random() * BALL_VELOCITY_X)) * randSign();
+  game.ball.velocity.y = (1 + Math.floor(Math.random() * BALL_VELOCITY_Y)) * randSign();
 };
 
 const updateGame = (canvas, context, game) => {
-  game.ball.x += BALL_VELOCITY_X;
-  game.ball.y += BALL_VELOCITY_Y;
+  game.ball.x += game.ball.velocity.x;
+  game.ball.y += game.ball.velocity.y;
 
-  // if ball goes above top and it was going upward
-  if (game.ball.y < 0 && game.ball.velocity.y < 0) {
+  if (game.ball.y <= 0) {
+    // if ball goes above top
+    game.ball.velocity.y = -game.ball.velocity.y;
+  } else if (game.ball.y >= canvas.height) {
+    // if ball goes below bottom
     game.ball.velocity.y = -game.ball.velocity.y;
   }
-  // if ball goes below bottom and it was going down
-  if (game.ball.y > canvas.height && game.ball.velocity.y > 0) {
-    game.ball.velocity.y = -game.ball.velocity.y;
-  }
+
   // if ball goes beyond left side
-  if (game.ball.x < 0) {
+  if (game.ball.x <= 0 + BALL_SIZE / 2 + PADDLE_THICKNESS) {
     // if it's in paddle area, then bounce it
-    if (game.ball.y > game.p1.y && game.ball.y < game.p1.y + PADDLE_HEIGHT) {
+    if (game.ball.y >= (game.p1.y - PADDLE_HEIGHT / 2) && game.ball.y <= (game.p1.y + PADDLE_HEIGHT / 2)) {
       game.ball.velocity.x = -game.ball.velocity.x;
-      delta.y = game.ball.y - (game.p1.y + PADDLE_HEIGHT / 2);
-      game.ball.velocity.y = delta.y * 0.3; // TODO make magic number a global constant
+    } else {
+      game.score.player2 += 1;
+      reset(canvas, game);
+    }
+
+  // if ball goes beyond right side
+  } else if (game.ball.x >= canvas.width - BALL_SIZE / 2 - PADDLE_THICKNESS) {
+    // if it's in paddle area, then bounce it
+    if (game.ball.y >= (game.p2.y - PADDLE_HEIGHT / 2) && game.ball.y <= (game.p2.y + PADDLE_HEIGHT / 2)) {
+      game.ball.velocity.x = -game.ball.velocity.x;
     } else {
       game.score.player1 += 1;
       reset(canvas, game);
     }
   }
-
-  // if ball goes beyond right side
-  if (game.ball.x > canvas.width) {
-    // if it's in paddle area, then bounce it
-    if (game.ball.y > game.p2.y && game.ball.y < game.p2.y + PADDLE_HEIGHT) {
-      game.ball.velocity.x = -game.ball.velocity.x;
-      delta.y = game.ball.y - (game.p2.y + PADDLE_HEIGHT / 2);
-      game.ball.velocity.y = delta.y * 0.3; // TODO make magic number a global constant
-    } else {
-      game.score.player2 += 1;
-      reset(canvas);
-    }
-  }
-
 
   context.fillStyle = 'black';
   context.fillRect(0, 0, canvas.width, canvas.height);
@@ -98,9 +90,9 @@ window.onload = () => {
   };
 
   const ball = {
-    x: Math.floor(Math.random() * (playGround.width - BALL_DIMENSION)),
-    y: Math.floor(Math.random() * (playGround.height - BALL_DIMENSION)),
-    bd: BALL_DIMENSION,
+    x: Math.floor(Math.random() * (playGround.width - BALL_SIZE)),
+    y: Math.floor(Math.random() * (playGround.height - BALL_SIZE)),
+    bd: BALL_SIZE,
     velocity: {
       x: 4 * randSign(),
       y: 4 * randSign(),
