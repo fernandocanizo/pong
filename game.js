@@ -11,17 +11,18 @@ const PADDLE_HEIGHT = 100;
 
 const BALL_COLOR = 'white';
 const BALL_SIZE = 6;
-const BALL_VELOCITY_X = 4;
-const BALL_VELOCITY_Y = 4;
+const BALL_VELOCITY_X = 5;
+const BALL_VELOCITY_Y = 5;
 
 const randSign = () => (Math.random() > 0.5) ? 1 : -1;
+const randRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
 const reset = (canvas, game) => {
   // center the ball
   game.ball.x = canvas.width / 2 + Math.floor(Math.random() * 5);
   game.ball.y = canvas.height / 2 + Math.floor(Math.random() * 5);
-  game.ball.velocity.x = (1 + Math.floor(Math.random() * BALL_VELOCITY_X)) * randSign();
-  game.ball.velocity.y = (1 + Math.floor(Math.random() * BALL_VELOCITY_Y)) * randSign();
+  game.ball.velocity.x = randRange(BALL_VELOCITY_X, BALL_VELOCITY_X + 3) * randSign();
+  game.ball.velocity.y = randRange(BALL_VELOCITY_X, BALL_VELOCITY_X + 3) * randSign();
 };
 
 const updateGame = (canvas, context, game) => {
@@ -98,7 +99,6 @@ window.onload = () => {
       y: 4 * randSign(),
     },
   };
-  console.log(ball);
 
   const score = {
     player1: 0,
