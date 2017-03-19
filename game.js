@@ -23,6 +23,10 @@ const reset = (canvas, game) => {
   game.ball.y = canvas.height / 2 + Math.floor(Math.random() * 5);
   game.ball.velocity.x = randRange(BALL_VELOCITY_X, BALL_VELOCITY_X + 3) * randSign();
   game.ball.velocity.y = randRange(BALL_VELOCITY_X, BALL_VELOCITY_X + 3) * randSign();
+
+  // center player 2 and reset its velocity
+  game.p2.y = canvas.height / 2 - PADDLE_HEIGHT / 2;
+  game.p2.velocity.y = 0;
 };
 
 const updateGame = (canvas, context, game) => {
@@ -58,6 +62,18 @@ const updateGame = (canvas, context, game) => {
     }
   }
 
+  // "A.I." :P, for player 2
+  game.p2.velocity.y = game.ball.velocity.y;
+  game.p2.y += game.p2.velocity.y;
+
+  // ensure player 2 doesn't go off screen
+  if ((game.p2.y + PADDLE_HEIGHT) > canvas.height) {
+    game.p2.y = canvas.height - PADDLE_HEIGHT;
+  }
+  if (game.p2.y < 0) {
+    game.p2.y = 0;
+  }
+
   context.fillStyle = 'black';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -88,6 +104,10 @@ window.onload = () => {
     x: playGround.width - PADDLE_THICKNESS,
     y: playGround.height / 2 - PADDLE_HEIGHT / 2,
     color: PLAYER_2_COLOR,
+    velocity: {
+      x: 0,
+      y: 0,
+    },
   };
 
   const ball = {
