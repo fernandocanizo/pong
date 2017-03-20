@@ -14,6 +14,9 @@ const BALL_SIZE = 6;
 const BALL_VELOCITY_X = 5;
 const BALL_VELOCITY_Y = 5;
 
+const UP_ARROW = 38;
+const DOWN_ARROW = 40;
+
 const randSign = () => (Math.random() > 0.5) ? 1 : -1;
 const randRange = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
@@ -74,6 +77,17 @@ const updateGame = (canvas, context, game) => {
     game.p2.y = 0;
   }
 
+  // update player 1 position
+  game.p1.y += game.p1.velocity.y;
+
+  // ensure player 1 doesn't go off screen
+  if ((game.p1.y + PADDLE_HEIGHT) > canvas.height) {
+    game.p1.y = canvas.height - PADDLE_HEIGHT;
+  }
+  if (game.p1.y < 0) {
+    game.p1.y = 0;
+  }
+
   context.fillStyle = 'black';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -93,11 +107,23 @@ const updateGame = (canvas, context, game) => {
 window.onload = () => {
   const playGround = document.getElementById('playGround');
   const context = playGround.getContext('2d');
+  document.onkeydown = (e) => game.p1.updateVelocity(e.which);
 
   const player1 = {
     x: 0,
     y: playGround.height / 2 - PADDLE_HEIGHT / 2,
     color: PLAYER_1_COLOR,
+    velocity: {
+      x: 0,
+      y: BALL_VELOCITY_Y,
+    },
+    updateVelocity: (key => {
+      if (UP_ARROW === key && game.p1.velocity.y > 0) {
+        game.p1.velocity.y *= -1;
+      } else if (DOWN_ARROW === key && game.p1.velocity.y < 0) {
+        game.p1.velocity.y *= -1;
+      }
+    }),
   };
 
   const player2 = {
